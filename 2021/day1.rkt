@@ -2,8 +2,9 @@
 
 (define (count-incr depths)
     (for/sum ([p depths]
-              [c (rest depths)])
-              (if (> c p) 1 0)))
+              [c (rest depths)]
+              #:when (> c p)) 
+              1))
 
 (define (part-1 path)
     (define depths (map string->number (file->lines path)))
