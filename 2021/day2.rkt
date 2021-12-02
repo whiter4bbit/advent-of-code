@@ -8,26 +8,24 @@
         (cons (string->symbol command) (string->number units))))
 
 (define (part-1 course)
-    (for/fold ([horizontal 0]
-               [depth 0]
-               #:result (* depth horizontal))
+    (for/fold ([position 0+0i]
+               #:result (* (real-part position) (imag-part position)))
               ([step course])
               (match step
-                [(cons 'forward units) (values (+ units horizontal) depth)]
-                [(cons 'up units) (values horizontal (- depth units))]
-                [(cons 'down units) (values horizontal (+ depth units))])))
-
+                [(cons 'forward units) (+ position (* units 0+1i))]
+                [(cons 'up units) (- position units)]
+                [(cons 'down units) (+ position units)])))
+                
 (printf "Part-1: ~a\n" (part-1 (read-course "day2-input.txt")))
 
 (define (part-2 course)
-    (for/fold ([horizontal 0]
-               [depth 0]
+    (for/fold ([position 0+0i]
                [aim 0]
-               #:result (* depth horizontal))
+               #:result (* (real-part position) (imag-part position)))
               ([step course])
               (match step
-                [(cons 'forward units) (values (+ units horizontal) (+ depth (* aim units)) aim)]
-                [(cons 'up units) (values horizontal depth (- aim units))]
-                [(cons 'down units) (values horizontal depth (+ aim units))])))
+                [(cons 'forward units) (values (+ position (* units 0+1i) (* units aim)) aim)]
+                [(cons 'up units) (values position (- aim units))]
+                [(cons 'down units) (values position (+ aim units))])))
 
 (printf "Part-2: ~a\n" (part-2 (read-course "day2-input.txt")))
