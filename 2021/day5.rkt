@@ -2,12 +2,11 @@
 
 (struct vents-line (start end dir) #:transparent)
 (define (vents-line-straight? vt)
-  (or (and (= (real-part (vents-line-dir vt)) 0) (= (abs (imag-part (vents-line-dir vt))) 1))
-      (and (= (imag-part (vents-line-dir vt)) 0) (= (abs (real-part (vents-line-dir vt))) 1))))
+  (let ([deg (abs (radians->degrees (angle (vents-line-dir vt))))])
+    (or (= deg 0) (= deg 90) (= deg 180))))
 (define (vents-line-straight-or-diagonal? vt)
   (or (vents-line-straight? vt)
-      (and (= (abs (real-part (vents-line-dir vt))) 1)
-           (= (abs (imag-part (vents-line-dir vt))) 1))))
+      (= (abs (radians->degrees (angle (vents-line-dir vt)))) 45)))
 (define (vents-line-collect-points vt points)
   (define (collect points cur)
     (let ([next-points (hash-update points cur add1 0)])
@@ -19,8 +18,8 @@
 (define (read-lines path)
   (for/list ([raw (file->lines path)])
     (let* ([line (map string->number (regexp-split #px"\\,| \\-\\> " raw))]
-           [start (+ (first line) (* (second line) 0+1i))]
-           [end (+ (third line) (* (fourth line) 0+1i))]
+           [start (make-rectangular (first line) (second line))]
+           [end (make-rectangular (third line) (fourth line))]
            [diff (- end start)])
       (vents-line
        start
