@@ -7,11 +7,11 @@
            [output (map string->list (string-split (second tokens)))])
       (cons patterns output))))
 
-(define bitmask->digit '(#x77 #x24 #x5d #x6d #x2e #x6b #x7b #x25 #x7f #x6f))
+(define bitmask->digit '#hasheq((#x77 . 0) (#x24 . 1) (#x5d . 2) (#x6d . 3) (#x2e . 4) (#x6b . 5) (#x7b . 6) (#x25 . 7) (#x7f . 8) (#x6f . 9)))
 
 (define (signals->digit key signals)
   (for/fold ([bitmask 0]
-             #:result (index-of bitmask->digit bitmask))
+             #:result (hash-ref bitmask->digit bitmask #f))
             ([signal signals])
     (bitwise-ior bitmask (arithmetic-shift 1 (index-of key signal)))))
 

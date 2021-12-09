@@ -21,7 +21,7 @@
       (vents-line start end dir))))
 
 (define (count-points lines type)
-  (define points (make-hash))
+  (define points (make-hasheqv))
   (for ([line lines] #:when(type line))
     (vents-line-collect-points line points))
   (for/sum ([(pos c) points] #:when (> c 1)) 1))
