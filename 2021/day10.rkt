@@ -33,16 +33,15 @@
 
 (printf "Part-1: ~a\n" (part-1 match-results))
 
-(define (completion-score stack)
-  (for/fold ([score 0])
-            ([cur stack])
-    (+ (* score 5) (hash-ref completion-costs cur #f))))
+(define (vector-middle vt)
+  (vector-ref (vector-sort vt <) (quotient (vector-length vt) 2)))
 
 (define (part-2 match-results)
-  (define scores
-    (for/vector ([result match-results]
-                 #:when (eq? 'success (car result)))
-      (completion-score (cdr result))))
-  (vector-ref (vector-sort scores <) (quotient (vector-length scores) 2)))
+  (vector-middle
+   (for/vector ([result match-results]
+                #:when (eq? 'success (car result)))
+     (for/fold ([score 0])
+               ([cur (cdr result)])
+       (+ (* score 5) (hash-ref completion-costs cur #f))))))
 
 (printf "Part-2: ~a\n" (part-2 match-results))
