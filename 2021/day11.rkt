@@ -8,9 +8,6 @@
     (for/vector ([c row])
       (- (char->integer c) (char->integer #\0)))))
 
-(define (at-offset r c offset)
-  (list (+ (first offset) r) (+ (second offset) c)))
-
 (define (neighbors r c)
   (for*/list ([nr (in-range (sub1 r) (+ r 2))]
               [nc (in-range (sub1 c) (+ c 2))]
