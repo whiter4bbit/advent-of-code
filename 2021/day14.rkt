@@ -33,8 +33,9 @@
     (values (populate-pairs pairs) (populate-elements elements pairs))))
 
 (define (apply/diff polymer rules times)
-  (let ([sorted (sort (hash-values (count-elements polymer rules times)) <)])
-    (- (last sorted) (first sorted))))
+  (let ([elements (hash-values (count-elements polymer rules times))])
+    (- (apply max elements)
+       (apply min elements))))
 
 (printf "Part-1: ~a\n" (apply/diff (read-polymer "day14-input.txt") (read-rules "day14-input.txt") 10))
 (printf "Part-2: ~a\n" (apply/diff (read-polymer "day14-input.txt") (read-rules "day14-input.txt") 40))
