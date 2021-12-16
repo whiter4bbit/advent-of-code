@@ -26,7 +26,7 @@
 (struct pkt-literal (version value) #:transparent)
 (struct pkt-operator (version type packets) #:transparent)
 
-(define (read-literal-pkt bb version)
+(define (read-pkt-literal bb version)
   (let read ([value 0]
              [group (take-bits! bb 5)])
     (cond
@@ -39,7 +39,7 @@
         version
         (bitwise-ior (arithmetic-shift value 4) group))])))
 
-(define (read-operator-pkt bb v t)
+(define (read-pkt-operator bb v t)
   (pkt-operator
    v t
    (case (take-bits! bb 1)
@@ -54,8 +54,8 @@
 
 (define (read-pkt bb)
   (match (cons (take-bits! bb 3) (take-bits! bb 3))
-    [(cons v 4) (read-literal-pkt bb v)]
-    [(cons v t) (read-operator-pkt bb v t)]))
+    [(cons v 4) (read-pkt-literal bb v)]
+    [(cons v t) (read-pkt-operator bb v t)]))
 
 (define (string->pkt s)
   (read-pkt (string->bit-buffer s)))
@@ -69,16 +69,16 @@
 
 (printf "Part-1: ~a\n" (part-1 (string->pkt (file->string "day16-input.txt"))))
 
-(define (pkt-eval pkt)
+(define (eval-pkt pkt)
   (match pkt
     [(pkt-literal _ v) v]
-    [(pkt-operator _ 0 args) (apply + (map pkt-eval args))]
-    [(pkt-operator _ 1 args) (apply * (map pkt-eval args))]
-    [(pkt-operator _ 2 args) (apply min (map pkt-eval args))]
-    [(pkt-operator _ 3 args) (apply max (map pkt-eval args))]
-    [(pkt-operator _ 5 (list f s)) #:when (> (pkt-eval f) (pkt-eval s)) 1]
-    [(pkt-operator _ 6 (list f s)) #:when (< (pkt-eval f) (pkt-eval s)) 1]
-    [(pkt-operator _ 7 (list f s)) #:when (equal? (pkt-eval f) (pkt-eval s)) 1]
+    [(pkt-operator _ 0 args) (apply + (map eval-pkt args))]
+    [(pkt-operator _ 1 args) (apply * (map eval-pkt args))]
+    [(pkt-operator _ 2 args) (apply min (map eval-pkt args))]
+    [(pkt-operator _ 3 args) (apply max (map eval-pkt args))]
+    [(pkt-operator _ 5 (list f s)) #:when (> (eval-pkt f) (eval-pkt s)) 1]
+    [(pkt-operator _ 6 (list f s)) #:when (< (eval-pkt f) (eval-pkt s)) 1]
+    [(pkt-operator _ 7 (list f s)) #:when (equal? (eval-pkt f) (eval-pkt s)) 1]
     [else 0]))
 
-(printf "Part-2: ~a\n" (pkt-eval (string->pkt (file->string "day16-input.txt"))))
+(printf "Part-2: ~a\n" (eval-pkt (string->pkt (file->string "day16-input.txt"))))
