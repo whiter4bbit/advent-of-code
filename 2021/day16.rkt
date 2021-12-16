@@ -26,7 +26,7 @@
 (struct pkt-literal (version value) #:transparent)
 (struct pkt-operator (version type packets) #:transparent)
 
-(define (read-value-pkt bb version)
+(define (read-literal-pkt bb version)
   (let read ([value 0]
              [group (take-bits! bb 5)])
     (cond
@@ -54,7 +54,7 @@
 
 (define (read-pkt bb)
   (match (cons (take-bits! bb 3) (take-bits! bb 3))
-    [(cons v 4) (read-value-pkt bb v)]
+    [(cons v 4) (read-literal-pkt bb v)]
     [(cons v t) (read-operator-pkt bb v t)]))
 
 (define (string->pkt s)
