@@ -47,7 +47,7 @@
       [(hash-has-key? seen kw) (hash-ref! seen kw #f)]
       [else
        (define v (count-win fst-score fst-pos snd-score snd-pos turn target))
-       (hash-set! seen kw v)
+    ;    (hash-set! seen kw v)
        v]))
   (max (count-win 0 fst-pos 0 snd-pos 0 'fst)
        (count-win 0 fst-pos 0 snd-pos 0 'snd)))
