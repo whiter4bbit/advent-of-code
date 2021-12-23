@@ -13,17 +13,15 @@
 
 (define (cost-to-organize rooms [hall '(#f #f #f #f #f #f #f #f #f #f #f)])
   (define room-size (/ (apply + (map length rooms)) 4))
-  (define (final? rooms)
+  (define (organized? rooms)
     (for/and ([(room i) (in-indexed rooms)])
       (and (= (length room) room-size)
            (for/and ([amp room])
              (= amp i)))))
   (define (can-move-from-room? room room-label)
-    (define unique (remove-duplicates room))
-    (cond
-      [(empty? unique) #f]
-      [(= (length unique) 1) (not (= (car unique) room-label))]
-      [else #t]))
+    (not
+     (for/and ([amp room])
+       (= amp room-label))))
   (define (path-clear? hall i j [v #f])
     (for/and ([k (in-range (min i j) (add1 (max i j)))])
       (or (eq? (list-ref hall k) #f) (eq? (list-ref hall k) v))))
@@ -44,16 +42,17 @@
                  #:when (path-clear? hall room-loc hall-loc))
         (define rooms* (list-set rooms room-label (cdr room)))
         (define hall* (list-set hall hall-loc (car room)))
-        (min (+ (room->hall-cost room room-label hall-loc) (organize/memo rooms* hall*))
-             energy))))
+        (min energy
+             (+ (room->hall-cost room room-label hall-loc)
+                (organize/memo rooms* hall*))))))
   (define (can-go-to-room? rooms hall amp hall-loc)
     (define room (list-ref rooms amp))
-    (define room-unique (remove-duplicates room))
-    (and (path-clear? hall (room-label->room-loc amp) hall-loc amp)
-         (or (empty? room)
-             (and (= (length room-unique) 1)
-                  (< (length room) room-size)
-                  (= (car room-unique) amp)))))
+    (define room-loc (room-label->room-loc amp))
+    (and
+     (path-clear? hall room-loc hall-loc amp)
+     (< (length room) room-size)
+     (for/and ([cur-amp room])
+       (= cur-amp amp))))
   (define (hall->room rooms hall)
     (for/fold ([energy inf-energy])
               ([(amp hall-loc) (in-indexed hall)]
@@ -68,7 +67,7 @@
            energy)))
   (define (organize rooms hall)
     (cond
-      [(final? rooms) 0]
+      [(organized? rooms) 0]
       [else
        (min (room->hall rooms hall)
             (hall->room rooms hall))]))
