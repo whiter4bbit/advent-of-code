@@ -47,9 +47,14 @@
       [(hash-has-key? seen kw) (hash-ref! seen kw #f)]
       [else
        (define v (count-win fst-score fst-pos snd-score snd-pos turn target))
-    ;    (hash-set! seen kw v)
+       (hash-set! seen kw v)
        v]))
-  (max (count-win 0 fst-pos 0 snd-pos 0 'fst)
-       (count-win 0 fst-pos 0 snd-pos 0 'snd)))
+  (max (count-win/memo 0 fst-pos 0 snd-pos 0 'fst)
+       (count-win/memo 0 fst-pos 0 snd-pos 0 'snd)))
 
 (printf "Part-2: ~a\n" (part-2 7 1))
+
+(module+ test
+    (require rackunit)
+    (check-eq? (part-1 7 1) 684495)
+    (check-eq? (part-2 7 1) 152587196649184))
