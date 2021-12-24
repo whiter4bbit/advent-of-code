@@ -29,14 +29,17 @@
       (match-define (list 'add 'x add-x) (list-ref routine 5))
       (match-define (list 'add 'y add-y) (list-ref routine 15))
       (list i add-x add-y)))
-  (define input (make-vector 14 1))
   (let build ([stack empty]
-              [vars vars])
+              [vars vars]
+              [input (make-list 14 0)])
     (match vars
-      [(list) #f]
+      [(list)
+       (if (= (run monad input) 0)
+           (string-join (map number->string input) "")
+           #f)]
       [(cons (list _ add-x _ ) tail)
        #:when (> add-x 0)
-       (build (cons (car vars) stack) tail)]
+       (build (cons (car vars) stack) tail input)]
       [else
        (match-define (list i _ add-y) (car stack))
        (match-define (list j add-x _) (car vars))
@@ -44,12 +47,9 @@
          (+ y add-y add-x))
        (for/first ([y y-range]
                    #:when (and (> (x y) 0) (< (x y) 10)))
-         (vector-set! input i y)
-         (vector-set! input j (x y)))
-       (build (cdr stack) (cdr vars))]))
-  (if (= (run monad (vector->list input)) 0)
-      (string-join (map number->string (vector->list input)) "")
-      #f))
+         (define input/y (list-set input i y))
+         (define input/y/x (list-set input/y j (x y)))
+         (build (cdr stack) (cdr vars) input/y/x))])))
 
 (define monad (read-monad "day24-input.txt"))
 
