@@ -26,21 +26,20 @@
   (define vars
     (for/list ([i (in-range 14)])
       (define routine (drop monad (* i 18)))
-      (match-define (list 'div 'z div-z) (list-ref routine 4))
       (match-define (list 'add 'x add-x) (list-ref routine 5))
       (match-define (list 'add 'y add-y) (list-ref routine 15))
-      (list i div-z add-x add-y)))
+      (list i add-x add-y)))
   (define input (make-vector 14 1))
   (let build ([stack empty]
               [vars vars])
     (match vars
       [(list) #f]
-      [(cons (list _ _ add-x _ ) tail)
+      [(cons (list _ add-x _ ) tail)
        #:when (> add-x 0)
        (build (cons (car vars) stack) tail)]
       [else
-       (match-define (list i _ _ add-y) (car stack))
-       (match-define (list j _ add-x _) (car vars))
+       (match-define (list i _ add-y) (car stack))
+       (match-define (list j add-x _) (car vars))
        (define (x y)
          (+ y add-y add-x))
        (for/first ([y y-range]
