@@ -1,5 +1,7 @@
 #lang racket
 
+(require "memo.rkt")
+
 (define (next-pos cur-pos die-roll)
   (add1 (remainder (+ (sub1 cur-pos) (+ (* die-roll 3) 3)) 10)))
 
@@ -28,7 +30,7 @@
       (define rolls-sum (apply + rolls))
       (define pos* (add1 (remainder (+ (sub1 pos) rolls-sum) 10)))
       (cons (+ score pos*) pos*)))
-  (define (count-win fst-score fst-pos snd-score snd-pos turn target)
+  (define/memo (count-win fst-score fst-pos snd-score snd-pos turn target)
     (cond
       [(and (>= fst-score 21) (eq? target 'fst)) 1]
       [(and (>= snd-score 21) (eq? target 'snd)) 1]
@@ -36,21 +38,12 @@
       [(>= snd-score 21) 0]
       [(= turn 0)
        (for/sum ([next (next-states fst-score fst-pos)])
-         (count-win/memo (car next) (cdr next) snd-score snd-pos (remainder (add1 turn) 2) target))]
+         (count-win (car next) (cdr next) snd-score snd-pos (remainder (add1 turn) 2) target))]
       [else
        (for/sum ([next (next-states snd-score snd-pos)])
-         (count-win/memo fst-score fst-pos (car next) (cdr next) (remainder (add1 turn) 2) target))]))
-  (define seen (make-hash))
-  (define (count-win/memo fst-score fst-pos snd-score snd-pos turn target)
-    (define kw `(,fst-score ,fst-pos ,snd-score ,snd-pos ,turn ,target))
-    (cond
-      [(hash-has-key? seen kw) (hash-ref! seen kw #f)]
-      [else
-       (define v (count-win fst-score fst-pos snd-score snd-pos turn target))
-       (hash-set! seen kw v)
-       v]))
-  (max (count-win/memo 0 fst-pos 0 snd-pos 0 'fst)
-       (count-win/memo 0 fst-pos 0 snd-pos 0 'snd)))
+         (count-win fst-score fst-pos (car next) (cdr next) (remainder (add1 turn) 2) target))]))
+  (max (count-win 0 fst-pos 0 snd-pos 0 'fst)
+       (count-win 0 fst-pos 0 snd-pos 0 'snd)))
 
 (printf "Part-2: ~a\n" (part-2 7 1))
 

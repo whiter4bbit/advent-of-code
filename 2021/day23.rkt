@@ -1,5 +1,7 @@
 #lang racket
 
+(require "memo.rkt")
+
 (define (read-rooms path)
   (define lines (file->lines path))
   (for/list ([i (in-range 3 10 2)])
@@ -44,7 +46,7 @@
         (define hall* (list-set hall hall-loc (car room)))
         (min energy
              (+ (room->hall-cost room room-label hall-loc)
-                (organize/memo rooms* hall*))))))
+                (organize rooms* hall*))))))
   (define (can-go-to-room? rooms hall amp hall-loc)
     (define room (list-ref rooms amp))
     (define room-loc (room-label->room-loc amp))
@@ -63,24 +65,18 @@
       (define cost (* (+ moves (- room-size (length room))) (vector-ref costs amp)))
       (define rooms* (list-set rooms amp (cons amp room)))
       (define hall* (list-set hall hall-loc #f))
-      (min (+ cost (organize/memo rooms* hall*))
+      (min (+ cost (organize rooms* hall*))
            energy)))
-  (define (organize rooms hall)
+  (define/memo (organize rooms hall)
     (cond
       [(organized? rooms) 0]
       [else
        (min (room->hall rooms hall)
             (hall->room rooms hall))]))
-  (define seen (make-hash))
-  (define (organize/memo rooms hall)
-    (define kw `(,rooms ,hall))
-    (cond
-      [(hash-has-key? seen kw) (hash-ref! seen kw #f)]
-      [else
-       (define v (organize rooms hall))
-       (hash-set! seen kw v)
-       v]))
-  (organize/memo rooms hall))
+  (organize rooms hall))
+
+(printf "Part-1: ~a\n" (cost-to-organize (read-rooms "day23-input-p1.txt")))
+(printf "Part-2: ~a\n" (cost-to-organize (read-rooms "day23-input-p2.txt")))
 
 (module+ test
   (require rackunit)

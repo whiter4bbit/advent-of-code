@@ -1,5 +1,7 @@
 #lang racket
 
+(require "memo.rkt")
+
 (define (string->step s)
   (define (num-range f t)
     (cons (string->number f) (string->number t)))
@@ -36,7 +38,7 @@
 (define (matrix-set vt r c v)
   (vector-set! (vector-ref vt r) c v))
 
-(define (count-layer steps)
+(define/memo (count-layer steps)
   (define y-axis (axis-values steps third))
   (define z-axis (axis-values steps fourth))
   (define layer
@@ -61,15 +63,8 @@
   (define x-min (argmin identity x-axis))
   (define x-max (argmax identity x-axis))
   (define seen (make-hash))
-  (define (count-layer/memo steps)
-    (cond
-      [(hash-has-key? seen steps) (hash-ref! seen steps #f)]
-      [else
-       (define res (count-layer steps))
-       (hash-set! seen steps res)
-       res]))
   (for/sum ([x (in-range x-min (add1 x-max))])
-    (count-layer/memo
+    (count-layer
      (for/list ([step steps]
                 #:when (x-within? x step))
        step))))
