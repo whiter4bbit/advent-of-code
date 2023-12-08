@@ -8,5 +8,6 @@ day04: day04.o
 day05: day05.o
 day06: day06.o
 day07: day07.o
+day08: day08.o
 clean: 
-	rm -f day01 day02 day03 day04 day05 day06 day07
+	rm -f day01 day02 day03 day04 day05 day06 day07 day08
