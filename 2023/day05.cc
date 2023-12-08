@@ -107,8 +107,7 @@ Problem parse(std::string_view path) {
     std::stringstream ss(line);
 
     std::string head;
-    ss >> head;
-    CHECK(head == "seeds:");
+    CHECK(ss >> head && head == "seeds:");
 
     for (uint64_t u; ss >> u;) {
       problem.seeds.emplace_back(u);

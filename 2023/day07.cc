@@ -13,6 +13,7 @@ struct Hand {
   std::string cards;
   std::string ranked;
   uint64_t bid{0};
+  uint8_t type{0};
 };
 
 const std::unordered_map<char, char> kTranslateP1{
@@ -29,8 +30,10 @@ const std::unordered_map<char, char> kTranslateP2{
 
 constexpr std::string_view kLabels{"AKQJT98765432"};
 
+template <typename TypeFn>
 std::vector<Hand> parse(std::string_view path,
-                        const std::unordered_map<char, char> &translation) {
+                        const std::unordered_map<char, char> &translation,
+                        TypeFn type_fn) {
   std::ifstream s(path);
   std::vector<Hand> hands;
   for (std::string line; std::getline(s, line);) {
@@ -41,13 +44,14 @@ std::vector<Hand> parse(std::string_view path,
     for (auto &c : hand.ranked) {
       c = translation.at(c);
     }
+    hand.type = type_fn(hand.cards);
   }
   return hands;
 }
 
 uint8_t hand_type(const std::string &cards) {
   std::vector<uint8_t> counts;
-  for (int i = 5; i > 0; --i) {
+  for (auto i{cards.size()}; i > 0; --i) {
     for (const auto &label : kLabels) {
       auto count = std::count_if(cards.begin(), cards.end(),
                                  [&](const auto &c) { return c == label; });
@@ -72,22 +76,14 @@ uint8_t hand_type(const std::string &cards) {
   return 1;
 }
 
-struct HandsOrderP1 {
-  virtual uint8_t best_hand_type(const std::string& cards) const {
+struct HandTypeP1 {
+  uint8_t operator()(const std::string &cards) const {
     return hand_type(cards);
-  }
-  bool operator()(const Hand &a, const Hand &b) const {
-    auto aType = best_hand_type(a.cards);
-    auto bType = best_hand_type(b.cards);
-    if (aType != bType) {
-      return aType < bType;
-    }
-    return a.ranked < b.ranked;
   }
 };
 
-struct HandsOrderP2: public HandsOrderP1 {
-  uint8_t best_hand_type(const std::string &cards) const override {
+struct HandTypeP2 {
+  uint8_t operator()(const std::string &cards) const {
     uint8_t best{hand_type(cards)};
     if (cards.find('J') == std::string::npos) {
       return best;
@@ -105,10 +101,15 @@ struct HandsOrderP2: public HandsOrderP1 {
   }
 };
 
-template <typename OrderFn>
-uint64_t solve(const std::vector<Hand> &hands, OrderFn order_fn) {
+uint64_t solve(const std::vector<Hand> &hands) {
   auto sorted_hands = hands;
-  std::sort(sorted_hands.begin(), sorted_hands.end(), order_fn);
+  std::sort(sorted_hands.begin(), sorted_hands.end(),
+            [](const auto &a, const auto &b) {
+              if (a.type != b.type) {
+                return a.type < b.type;
+              }
+              return a.ranked < b.ranked;
+            });
   uint64_t answ{0};
   for (int rank{0}; rank < sorted_hands.size(); ++rank) {
     const auto &hand = sorted_hands[rank];
@@ -118,13 +119,13 @@ uint64_t solve(const std::vector<Hand> &hands, OrderFn order_fn) {
 }
 
 int main(int argc, char **argv) {
-  std::cout << solve(parse("input07-test.txt", kTranslateP1), HandsOrderP1())
+  std::cout << solve(parse("input07-test.txt", kTranslateP1, HandTypeP1()))
             << std::endl;
-  std::cout << solve(parse("input07.txt", kTranslateP1), HandsOrderP1())
+  std::cout << solve(parse("input07.txt", kTranslateP1, HandTypeP1()))
             << std::endl;
-  std::cout << solve(parse("input07-test.txt", kTranslateP2), HandsOrderP2())
+  std::cout << solve(parse("input07-test.txt", kTranslateP2, HandTypeP2()))
             << std::endl;
-  std::cout << solve(parse("input07.txt", kTranslateP2), HandsOrderP2())
+  std::cout << solve(parse("input07.txt", kTranslateP2, HandTypeP2()))
             << std::endl;
   return 0;
 }
