@@ -1,5 +1,7 @@
 #include <fstream>
 #include <iostream>
+#include <numeric>
+#include <sstream>
 #include <vector>
 
 struct Card {
@@ -19,15 +21,9 @@ struct Card {
 std::vector<Card> parse(std::string_view path) {
   auto read_numbers = [](const auto &line) {
     std::vector<int> numbers;
-    for (int i{0}; i < line.size();) {
-      if (!std::isdigit(line[i])) {
-        ++i;
-        continue;
-      }
-      auto &num = numbers.emplace_back();
-      while (std::isdigit(line[i])) {
-        num = num * 10 + (line[i++] - '0');
-      }
+    std::stringstream ss(line);
+    for (int n; ss >> n;) {
+      numbers.emplace_back(n);
     }
     return numbers;
   };
@@ -44,24 +40,20 @@ std::vector<Card> parse(std::string_view path) {
 }
 
 uint64_t part1(const std::vector<Card> &cards) {
-  uint64_t answ{0};
-  for (const auto &card : cards) {
-    answ += card.points;
-  }
-  return answ;
+  return std::accumulate(
+      cards.begin(), cards.end(), 0,
+      [](auto acc, auto &card) { return acc + card.points; });
 }
 
 uint64_t part2(std::vector<Card> cards) {
   const uint64_t total = cards.size();
+  uint64_t answ{cards.size()};
   for (uint64_t i = 0; i < total; ++i) {
     const auto &cur = cards[i];
     for (uint64_t j = i + 1; j <= std::min(i + cur.matching, total - 1); ++j) {
       cards[j].copies += cur.copies;
+      answ += cur.copies;
     }
-  }
-  uint64_t answ{0};
-  for (const auto &card : cards) {
-    answ += card.copies;
   }
   return answ;
 }
