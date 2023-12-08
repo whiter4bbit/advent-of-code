@@ -11,7 +11,6 @@
 
 struct Hand {
   std::string cards;
-  std::string ranked;
   uint64_t bid{0};
   uint8_t type{0};
 };
@@ -28,7 +27,7 @@ const std::unordered_map<char, char> kTranslateP2{
     {'Q', 'K'}, {'K', 'L'}, {'A', 'M'},
 };
 
-constexpr std::string_view kLabels{"AKQJT98765432"};
+constexpr std::string_view kLabels{"ABCDEFGHIJKLM"};
 
 template <typename TypeFn>
 std::vector<Hand> parse(std::string_view path,
@@ -40,8 +39,7 @@ std::vector<Hand> parse(std::string_view path,
     std::stringstream ss(line);
     auto &hand = hands.emplace_back();
     ss >> hand.cards >> hand.bid;
-    hand.ranked = hand.cards;
-    for (auto &c : hand.ranked) {
+    for (auto &c : hand.cards) {
       c = translation.at(c);
     }
     hand.type = type_fn(hand.cards);
@@ -85,13 +83,13 @@ struct HandTypeP1 {
 struct HandTypeP2 {
   uint8_t operator()(const std::string &cards) const {
     uint8_t best{hand_type(cards)};
-    if (cards.find('J') == std::string::npos) {
+    if (cards.find('A') == std::string::npos) {
       return best;
     }
     for (const auto &r : kLabels) {
       auto replaced = cards;
       for (auto &c : replaced) {
-        if (c == 'J') {
+        if (c == 'A') {
           c = r;
         }
       }
@@ -105,10 +103,7 @@ uint64_t solve(const std::vector<Hand> &hands) {
   auto sorted_hands = hands;
   std::sort(sorted_hands.begin(), sorted_hands.end(),
             [](const auto &a, const auto &b) {
-              if (a.type != b.type) {
-                return a.type < b.type;
-              }
-              return a.ranked < b.ranked;
+              return (a.type != b.type) ? (a.type < b.type) : a.cards < b.cards;
             });
   uint64_t answ{0};
   for (int rank{0}; rank < sorted_hands.size(); ++rank) {

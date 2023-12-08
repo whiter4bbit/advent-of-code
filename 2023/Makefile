@@ -1,5 +1,5 @@
 LDFLAGS=-std=c++17 -lstdc++
-CXXFLAGS=-std=c++17 -g
+CXXFLAGS=-std=c++17 -O3
 
 day01: day01.o
 day02: day02.o
