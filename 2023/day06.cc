@@ -1,6 +1,7 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <vector>
 
@@ -15,13 +16,12 @@ struct Race {
 };
 
 Race compact(const std::vector<Race> &races) {
-  Race compacted {
-    .time = races.front().time,
-    .record = races.front().record,
+  Race compacted{
+      .time = races.front().time,
+      .record = races.front().record,
   };
-  auto append = [](uint64_t& d, uint64_t v) {
-    auto s = std::to_string(v);
-    for (int j = 0; j < s.size(); ++j) {
+  auto append = [](uint64_t &d, uint64_t v) {
+    for (int j = std::to_string(v).size(); j > 0; --j) {
       d *= 10;
     }
     d += v;
@@ -30,7 +30,7 @@ Race compact(const std::vector<Race> &races) {
     append(compacted.time, races[i].time);
     append(compacted.record, races[i].record);
   }
-  return compacted; 
+  return compacted;
 }
 
 std::vector<Race> parse(std::string_view path) {
@@ -51,9 +51,8 @@ std::vector<Race> parse(std::string_view path) {
     CHECK(std::getline(s, line));
     std::stringstream ss(line);
     ss >> header;
-    for (uint64_t i = 0, record; i < races.size(); ++i) {
-      CHECK(ss >> record);
-      races[i].record = record;
+    for (auto& race : races) {
+      CHECK(ss >> race.record);
     }
   }
   return races;
@@ -70,16 +69,13 @@ uint64_t ways_to_win(const Race &race) {
 }
 
 uint64_t part1(const std::vector<Race> &races) {
-  uint64_t answ{1};
-  for (const auto &race : races) {
-    answ *= ways_to_win(race);
-  }
-  return answ;
+  return std::accumulate(races.cbegin(), races.cend(), 1,
+                         [](const auto &acc, const auto &race) {
+                           return acc * ways_to_win(race);
+                         });
 }
 
-uint64_t part2(const Race &race) {
-  return ways_to_win(race);
-}
+inline uint64_t part2(const Race &race) { return ways_to_win(race); }
 
 int main(int argc, char **argv) {
   std::cout << part1(parse("input06-test.txt")) << std::endl;

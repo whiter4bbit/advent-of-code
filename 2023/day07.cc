@@ -88,7 +88,10 @@ struct HandsOrderP1 {
 
 struct HandsOrderP2: public HandsOrderP1 {
   uint8_t best_hand_type(const std::string &cards) const override {
-    uint8_t best{0};
+    uint8_t best{hand_type(cards)};
+    if (cards.find('J') == std::string::npos) {
+      return best;
+    }
     for (const auto &r : kLabels) {
       auto replaced = cards;
       for (auto &c : replaced) {
