@@ -86,9 +86,9 @@ uint64_t part2(const Problem &problem) {
 }
 
 int main(int argc, char **argv) {
-  std::cout << part1(parse("input08-test.txt")) << std::endl;
-  std::cout << part1(parse("input08.txt")) << std::endl;
-  std::cout << part2(parse("input08-test2.txt")) << std::endl;
-  std::cout << part2(parse("input08.txt")) << std::endl;
+  std::cout << "P1T:" << part1(parse("input08-test.txt")) << std::endl;
+  std::cout << "P1P:" << part1(parse("input08.txt")) << std::endl;
+  std::cout << "P1T:" << part2(parse("input08-test2.txt")) << std::endl;
+  std::cout << "P1P:" << part2(parse("input08.txt")) << std::endl;
   return 0;
 }
