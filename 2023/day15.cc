@@ -39,32 +39,33 @@ struct Lens {
 uint64_t part2(const std::vector<std::string> &sequence) {
   std::vector<std::vector<Lens>> boxes(256);
   for (const auto &step : sequence) {
-    if (step.find('-') != std::string::npos) {
-      auto label = step.substr(0, step.size() - 1);
-      auto &box = boxes.at(aoc_hash(label));
-      auto it = std::find_if(box.begin(), box.end(),
-                             [&](auto &e) { return e.label == label; });
+    auto op_pos = step.find('=');
+    if (op_pos == std::string::npos) {
+      op_pos = step.find('-');
+    }
+    auto label = step.substr(0, op_pos);
+    auto &box = boxes.at(aoc_hash(label));
+    auto it = std::find_if(box.begin(), box.end(),
+                           [&](auto &e) { return e.label == label; });
+    if (step[op_pos] == '-') {
       if (it != box.end()) {
         box.erase(it);
       }
-    } else {
-      Lens lens {
-        .label = step.substr(0, step.find('=')),
-        .focal = std::stoi(step.substr(step.find('=') + 1)),
-      };
-      auto &box = boxes.at(aoc_hash(lens.label));
-      auto it = std::find_if(box.begin(), box.end(),
-                             [&](auto &e) { return e.label == lens.label; });
-      if (it == box.end()) {
-        box.emplace_back(lens);
+    } else {      
+      auto focal = std::stoi(step.substr(op_pos + 1));
+      if (it != box.end()) {        
+        it->focal = focal;
       } else {
-        it->focal = lens.focal;
+        box.emplace_back(Lens {
+          .label = label,
+          .focal = focal,
+        });
       }
     }
   }
   uint64_t power{0};
   for (uint64_t b{0}; b < boxes.size(); ++b) {
-    const auto& box = boxes.at(b);
+    const auto &box = boxes.at(b);
     for (uint64_t s{0}; s < box.size(); ++s) {
       power += (b + 1) * (s + 1) * box.at(s).focal;
     }
