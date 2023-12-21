@@ -17,5 +17,6 @@ day13: day13.o
 day14: day14.o
 day15: day15.o
 day16: day16.o
+day17: day17.o
 clean: 
-	rm -f *.o day01 day02 day03 day04 day05 day06 day07 day08 day09 day10 day11 day12 day13 day14 day15 day16
+	rm -f *.o day01 day02 day03 day04 day05 day06 day07 day08 day09 day10 day11 day12 day13 day14 day15 day16 day17
