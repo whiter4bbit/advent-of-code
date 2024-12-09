@@ -10,8 +10,6 @@
          [number-pairs (map cons left-numbers right-numbers)])
     (for/sum ([pair number-pairs]) (abs (- (car pair) (cdr pair))))))
 
-(printf "Part-1: ~a\n" (part-1 "day01-input.txt"))
-
 (define (count-numbers numbers)
   (for/fold ([counts (hash)]) ([number numbers])
     (values (hash-update counts number add1 0))))
@@ -22,4 +20,5 @@
     (for/sum ([left-number (map first pairs)])
              (* left-number (hash-ref right-numbers-count left-number 0)))))
 
+(printf "Part-1: ~a\n" (part-1 "day01-input.txt"))
 (printf "Part-2: ~a\n" (part-2 "day01-input.txt"))

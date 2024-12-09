@@ -1,7 +1,7 @@
 #lang racket
 
 (define (file->reports path)
-  (map (lambda (line) (map string->number (string-split line " "))) (file->lines path)))
+  (map (λ (line) (map string->number (string-split line " "))) (file->lines path)))
 
 (define (make-diff lhs rhs)
   (if (or (null? rhs) (null? lhs))
@@ -9,7 +9,7 @@
       (cons (- (car lhs) (car rhs)) (make-diff (cdr lhs) (cdr rhs)))))
 
 (define (abs-between? lo hi)
-  (lambda (num) (and (>= (abs num) lo) (<= (abs num) hi))))
+  (λ (num) (and (>= (abs num) lo) (<= (abs num) hi))))
 
 (define (is-safe? report)
   (let* ([diff (make-diff report (cdr report))])
