@@ -1,7 +1,7 @@
 #lang racket
 
 (define (file->pairs path)
-  (map (lambda (line) (map string->number (string-split line "   "))) (file->lines path)))
+  (map (λ (line) (map string->number (string-split line "   "))) (file->lines path)))
 
 (define (part-1 path)
   (let* ([pairs (file->pairs path)]
