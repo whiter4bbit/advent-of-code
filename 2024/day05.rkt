@@ -45,14 +45,15 @@
     (list-set (list-set lst j-pos i-val) i-pos j-val)))
 
 (define (fix-update update rules-hash)
-  (for*/fold ([fixed update]
-              #:result fixed)
-             ([i (in-range 0 (length update))]
-              [j (in-range (+ i 1) (length update))])
-    (cond
-      [(rules-has-pair? rules-hash (list-ref fixed j) (list-ref fixed i))
-       (values (list-swap fixed i j))]
-      [else (values fixed)])))
+  (let ([len (length update)])
+    (for*/fold ([fixed update]
+                #:result fixed)
+               ([i (in-range 0 len)]
+                [j (in-range (+ i 1) len)])
+      (cond
+        [(rules-has-pair? rules-hash (list-ref fixed j) (list-ref fixed i))
+         (values (list-swap fixed i j))]
+        [else (values fixed)]))))
 
 (define (part-2 path)
   (let* ([input (file->input path)]
